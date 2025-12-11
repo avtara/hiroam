@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Loader2, Wifi, Clock, ArrowRight, Check, AlertCircle } from "lucide-react"
+import { useAuth } from "@/providers/auth-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -15,20 +16,20 @@ import { formatCurrency, formatDataSize } from "@/lib/utils"
 import { toast } from "sonner"
 
 interface TopupPackage {
-  id: string
+  id?: string
   package_code: string
   name: string
   description: string | null
-  volume_gb: string | null
+  volume_gb: string | number | null
   volume_bytes: number
   duration: number
   duration_unit: string
-  data_type: number
+  data_type?: number
   speed: string | null
-  price_usd: string | null
+  price_usd?: string | null
   price_usd_cents: number
   price_idr: number
-  image_url: string | null
+  image_url?: string | null
 }
 
 interface TopupDialogProps {
@@ -39,6 +40,8 @@ interface TopupDialogProps {
   customerEmail: string
   customerName?: string
   userId?: string
+  // Guest-specific props
+  orderNumber?: string // Required for guest users
 }
 
 export function TopupDialog({
@@ -49,7 +52,9 @@ export function TopupDialog({
   customerEmail,
   customerName,
   userId,
+  orderNumber,
 }: TopupDialogProps) {
+  const { session } = useAuth()
   const [packages, setPackages] = useState<TopupPackage[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingCheckout, setLoadingCheckout] = useState(false)
@@ -64,6 +69,9 @@ export function TopupDialog({
     can_topup: boolean
   } | null>(null)
 
+  // Determine if this is a guest user (no session but has orderNumber)
+  const isGuest = !session && !!orderNumber
+
   useEffect(() => {
     if (open && profileId) {
       fetchTopupPackages()
@@ -74,37 +82,113 @@ export function TopupDialog({
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-topup-packages`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-          },
-          body: JSON.stringify({ esim_profile_id: profileId }),
+      let response: Response
+      let data: Record<string, unknown>
+
+      if (isGuest && orderNumber) {
+        // Guest user: use guest endpoint with order_number + email verification
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/topup-packages-guest`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+            },
+            body: JSON.stringify({
+              order_number: orderNumber,
+              email: customerEmail,
+            }),
+          }
+        )
+
+        data = await response.json()
+
+        if (!data.success) {
+          throw new Error((data.error as string) || "Failed to fetch topup packages")
         }
-      )
 
-      const data = await response.json()
+        // Transform guest response to match expected format
+        const guestPackages = ((data.packages as Array<{
+          package_code: string
+          name: string
+          description?: string
+          volume_gb: number
+          volume_bytes: number
+          duration: number
+          duration_unit: string
+          speed?: string
+          price: {
+            usd_cents: number
+            idr: number | null
+          }
+        }>) || []).map((pkg) => ({
+          package_code: pkg.package_code,
+          name: pkg.name,
+          description: pkg.description || null,
+          volume_gb: pkg.volume_gb,
+          volume_bytes: pkg.volume_bytes,
+          duration: pkg.duration,
+          duration_unit: pkg.duration_unit,
+          speed: pkg.speed || null,
+          price_usd_cents: pkg.price.usd_cents,
+          price_idr: pkg.price.idr || 0,
+        }))
 
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch topup packages")
-      }
+        setPackages(guestPackages)
 
-      if (!data.can_topup) {
-        setError(data.reason || "This eSIM cannot be topped up")
-        setPackages([])
+        // Set profile info from guest response
+        const esimData = data.esim as {
+          data_used_bytes?: number
+          data_total_bytes?: number
+          usage_percentage?: number
+          expires_at?: string
+        } | undefined
+        if (esimData) {
+          setProfileInfo({
+            current_data_used: esimData.data_used_bytes || 0,
+            current_data_total: esimData.data_total_bytes || 0,
+            current_usage_percentage: esimData.usage_percentage || 0,
+            expires_at: esimData.expires_at || null,
+            topup_count: 0, // Guest endpoint doesn't return this
+            can_topup: true,
+          })
+        }
       } else {
-        setPackages(data.packages || [])
-        setProfileInfo({
-          current_data_used: data.current_data_used,
-          current_data_total: data.current_data_total,
-          current_usage_percentage: data.current_usage_percentage,
-          expires_at: data.expires_at,
-          topup_count: data.topup_count,
-          can_topup: data.can_topup,
-        })
+        // Authenticated user: use authenticated endpoint
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-topup-packages`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+              "Authorization": `Bearer ${session?.access_token || ""}`,
+            },
+            body: JSON.stringify({ esim_profile_id: profileId }),
+          }
+        )
+
+        data = await response.json()
+
+        if (!data.success) {
+          throw new Error((data.error as string) || "Failed to fetch topup packages")
+        }
+
+        if (!data.can_topup) {
+          setError((data.reason as string) || "This eSIM cannot be topped up")
+          setPackages([])
+        } else {
+          setPackages((data.packages as TopupPackage[]) || [])
+          setProfileInfo({
+            current_data_used: data.current_data_used as number,
+            current_data_total: data.current_data_total as number,
+            current_usage_percentage: data.current_usage_percentage as number,
+            expires_at: data.expires_at as string | null,
+            topup_count: (data.topup_count as number) || 0,
+            can_topup: data.can_topup as boolean,
+          })
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load packages")
@@ -121,35 +205,73 @@ export function TopupDialog({
 
     setLoadingCheckout(true)
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-topup-checkout`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-          },
-          body: JSON.stringify({
-            esim_profile_id: profileId,
-            package_code: selectedPackage,
-            customer_email: customerEmail,
-            customer_name: customerName,
-            user_id: userId,
-          }),
+      let response: Response
+      let data: Record<string, unknown>
+
+      if (isGuest && orderNumber) {
+        // Guest user: use guest checkout endpoint
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/topup-checkout-guest`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+            },
+            body: JSON.stringify({
+              order_number: orderNumber,
+              email: customerEmail,
+              package_code: selectedPackage,
+              success_url: window.location.href,
+            }),
+          }
+        )
+
+        data = await response.json()
+
+        if (!data.success) {
+          throw new Error((data.error as string) || "Failed to create checkout")
         }
-      )
 
-      const data = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to create checkout")
-      }
-
-      // Redirect to Paddle checkout
-      if (data.checkout_url) {
-        window.location.href = data.checkout_url
+        // Redirect to Paddle checkout
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url as string
+        } else {
+          throw new Error("No checkout URL returned")
+        }
       } else {
-        throw new Error("No checkout URL returned")
+        // Authenticated user: use authenticated checkout endpoint
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-topup-checkout`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+              "Authorization": `Bearer ${session?.access_token || ""}`,
+            },
+            body: JSON.stringify({
+              esim_profile_id: profileId,
+              package_code: selectedPackage,
+              customer_email: customerEmail,
+              customer_name: customerName,
+              user_id: userId,
+            }),
+          }
+        )
+
+        data = await response.json()
+
+        if (!data.success) {
+          throw new Error((data.error as string) || "Failed to create checkout")
+        }
+
+        // Redirect to Paddle checkout
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url as string
+        } else {
+          throw new Error("No checkout URL returned")
+        }
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Gagal membuat checkout")
@@ -249,12 +371,12 @@ export function TopupDialog({
                         {pkg.volume_gb && (
                           <span className="flex items-center gap-1">
                             <Wifi className="h-3 w-3" />
-                            {pkg.volume_gb} GB
+                            {typeof pkg.volume_gb === "number" ? pkg.volume_gb.toFixed(1) : pkg.volume_gb} GB
                           </span>
                         )}
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {pkg.duration} {pkg.duration_unit === "days" ? "hari" : pkg.duration_unit}
+                          {pkg.duration} {pkg.duration_unit === "days" || pkg.duration_unit === "DAY" ? "hari" : pkg.duration_unit}
                         </span>
                       </div>
                     </div>
@@ -262,9 +384,11 @@ export function TopupDialog({
                       <p className="font-semibold text-primary">
                         {formatCurrency(pkg.price_usd_cents, "USD", "paddle")}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatCurrency(pkg.price_idr, "IDR")}
-                      </p>
+                      {pkg.price_idr > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {formatCurrency(pkg.price_idr, "IDR")}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

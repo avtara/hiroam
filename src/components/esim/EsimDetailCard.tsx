@@ -79,6 +79,7 @@ interface EsimDetailCardProps {
   userEmail: string
   userId?: string
   showActivationCodes?: boolean
+  orderNumber?: string // For guest users top-up
 }
 
 function calculateDataUsagePercent(used: number | null, total: number | null): number {
@@ -125,7 +126,8 @@ export function EsimDetailCard({
   packageInfo,
   userEmail,
   userId,
-  showActivationCodes = true
+  showActivationCodes = true,
+  orderNumber,
 }: EsimDetailCardProps) {
   const [topupDialogOpen, setTopupDialogOpen] = useState(false)
   const [qrDialogOpen, setQrDialogOpen] = useState(false)
@@ -660,6 +662,7 @@ export function EsimDetailCard({
         profileIccid={esim.iccid}
         customerEmail={userEmail}
         userId={userId}
+        orderNumber={orderNumber}
       />
     </>
   )

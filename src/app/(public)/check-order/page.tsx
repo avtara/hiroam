@@ -385,6 +385,7 @@ export default function CheckOrderPage() {
                           packageInfo={profile.packageInfo}
                           userEmail={order.customer_email}
                           showActivationCodes={true}
+                          orderNumber={order.order_number}
                         />
                       ))}
                     </div>
