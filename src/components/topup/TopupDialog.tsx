@@ -12,7 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { formatCurrency, formatDataSize } from "@/lib/utils"
+import { formatDataSize } from "@/lib/utils"
+import { useCurrencyStore, formatPriceForCurrency } from "@/stores/currency-store"
 import { toast } from "sonner"
 
 interface TopupPackage {
@@ -55,6 +56,7 @@ export function TopupDialog({
   orderNumber,
 }: TopupDialogProps) {
   const { session } = useAuth()
+  const { currency } = useCurrencyStore()
   const [packages, setPackages] = useState<TopupPackage[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingCheckout, setLoadingCheckout] = useState(false)
@@ -382,13 +384,8 @@ export function TopupDialog({
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-primary">
-                        {formatCurrency(pkg.price_usd_cents, "USD", "paddle")}
+                        {formatPriceForCurrency(pkg.price_usd_cents, pkg.price_idr, currency)}
                       </p>
-                      {pkg.price_idr > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          {formatCurrency(pkg.price_idr, "IDR")}
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -411,7 +408,7 @@ export function TopupDialog({
               <div className="flex justify-between items-center text-sm">
                 <span>Total Pembayaran:</span>
                 <span className="font-semibold text-lg">
-                  {formatCurrency(selectedPkg.price_usd_cents, "USD", "paddle")}
+                  {formatPriceForCurrency(selectedPkg.price_usd_cents, selectedPkg.price_idr, currency)}
                 </span>
               </div>
             )}
