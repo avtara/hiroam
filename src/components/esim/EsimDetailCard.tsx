@@ -152,6 +152,7 @@ export function EsimDetailCard({
   const isExpired = esim.expires_at && new Date(esim.expires_at) < new Date()
 
   // Check if can topup - per eSIM Access API: "Top ups can be requested while the eSIM is in New, In Use or Depleted status, but not after eSIM expiry"
+  // Also check if the original package supports top-up (from profile or package info)
   const validTopupStatuses = [
     "RELEASED", "released",     // New - not yet installed
     "IN_USE", "in_use",         // Active - currently being used
@@ -160,7 +161,8 @@ export function EsimDetailCard({
     "DEPLETED", "depleted",     // Depleted - alternative name
     "active", "installed"       // Internal statuses
   ]
-  const packageSupportsTopup = packageInfo?.support_topup !== false
+  // Check esim.support_topup first (from profile), fallback to packageInfo
+  const packageSupportsTopup = esim.support_topup !== false && packageInfo?.support_topup !== false
   const canTopup = validTopupStatuses.includes(esim.esim_status || "") && !isExpired && !isRefunded && packageSupportsTopup
 
   // Parse operator list for coverage

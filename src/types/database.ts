@@ -309,6 +309,7 @@ export type Database = {
           short_url: string | null
           sm_dp_address: string | null
           smdp_status: string | null
+          support_topup: boolean | null
           topup_count: number | null
           topup_history: Json | null
           updated_at: string | null
@@ -349,6 +350,7 @@ export type Database = {
           short_url?: string | null
           sm_dp_address?: string | null
           smdp_status?: string | null
+          support_topup?: boolean | null
           topup_count?: number | null
           topup_history?: Json | null
           updated_at?: string | null
@@ -389,6 +391,7 @@ export type Database = {
           short_url?: string | null
           sm_dp_address?: string | null
           smdp_status?: string | null
+          support_topup?: boolean | null
           topup_count?: number | null
           topup_history?: Json | null
           updated_at?: string | null
