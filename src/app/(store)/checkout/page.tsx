@@ -278,14 +278,35 @@ export default function CheckoutPage() {
     setIsLoading(true)
     console.log("[Checkout] Starting checkout process...")
 
+    // IMPORTANT: Get fresh items directly from store to avoid stale closure issue
+    // This ensures we have the latest cart state including periodNum for unlimited packages
+    const freshItems = useCartStore.getState().items
+
+    console.log("[Checkout] Items from store at submit time:", JSON.stringify(freshItems.map(i => ({
+      id: i.id,
+      package_code: i.package.package_code,
+      periodNum: i.periodNum,
+      periodNumType: typeof i.periodNum,
+      quantity: i.quantity,
+    })), null, 2))
+
     try {
       // Prepare cart items for the edge function
-      const cartItems = items.map((item) => ({
-        package_code: item.package.package_code,
-        quantity: item.quantity,
-        period_num: item.periodNum || null, // For daily/unlimited packages
-      }))
+      const cartItems = freshItems.map((item) => {
+        console.log("[Checkout] Cart item raw:", {
+          package_code: item.package.package_code,
+          periodNum: item.periodNum,
+          periodNumType: typeof item.periodNum,
+          quantity: item.quantity,
+        })
+        return {
+          package_code: item.package.package_code,
+          quantity: item.quantity,
+          period_num: item.periodNum ?? null, // For daily/unlimited packages - use ?? to preserve 0 if ever needed
+        }
+      })
 
+      console.log("[Checkout] Final cartItems to send:", JSON.stringify(cartItems, null, 2))
       console.log("[Checkout] Calling create-checkout edge function...")
 
       // Get fresh access token - use session from auth context (kept fresh by onAuthStateChange)

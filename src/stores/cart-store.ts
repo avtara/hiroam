@@ -262,6 +262,22 @@ export const useCartStore = create<CartState>()(
         promoDiscount: state.promoDiscount,
         appliedCoupon: state.appliedCoupon,
       }),
+      // Ensure periodNum is properly typed as number after rehydration
+      onRehydrateStorage: () => (state) => {
+        if (state && state.items) {
+          state.items = state.items.map((item) => ({
+            ...item,
+            // Ensure periodNum is a number if it exists (handles any string conversion from localStorage)
+            periodNum: item.periodNum != null ? Number(item.periodNum) : undefined,
+          }))
+          console.log("[CartStore] Rehydrated with items:", state.items.map(i => ({
+            id: i.id,
+            package_code: i.package?.package_code,
+            periodNum: i.periodNum,
+            periodNumType: typeof i.periodNum,
+          })))
+        }
+      },
     }
   )
 )
