@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Wallet, Loader2 } from "lucide-react"
 import {
@@ -11,6 +11,7 @@ import {
   useSwitchChain,
   useWriteContract,
   useWaitForTransactionReceipt,
+  usePublicClient,
 } from "wagmi"
 import { base, baseSepolia } from "wagmi/chains"
 import type { NetworkPaymentRequirements, PaymentStatus, NetworkType } from "@/types/x402"
@@ -54,6 +55,10 @@ export function EVMWalletConnect({
   const [isProcessing, setIsProcessing] = useState(false)
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>()
 
+  // Track if we've already processed this transaction to prevent duplicates
+  const hasProcessedRef = useRef(false)
+  const pollingRef = useRef<NodeJS.Timeout | null>(null)
+
   const targetChainId = network === "base" ? base.id : baseSepolia.id
   const targetChain = network === "base" ? base : baseSepolia
   const isCorrectChain = chainId === targetChainId
@@ -67,34 +72,95 @@ export function EVMWalletConnect({
   // Write contract hook for ERC-20 transfer - use async version
   const { writeContractAsync, isPending: isWritePending } = useWriteContract()
 
+  // Public client for manual receipt polling
+  const publicClient = usePublicClient({ chainId: targetChainId })
+
   // Wait for transaction receipt
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
     hash: txHash,
   })
 
-  // Handle transaction confirmation
-  useEffect(() => {
-    if (isConfirmed && txHash && address) {
-      console.log("[EVM] Transaction confirmed:", txHash)
-
-      // Create payment payload with transaction hash
-      const caip2Network = NETWORK_TO_CAIP2[network as NetworkType]
-      const paymentPayload = JSON.stringify({
-        x402Version: 1,
-        scheme: "exact",
-        network: caip2Network,
-        payload: {
-          transactionHash: txHash,
-          from: address,
-          to: paymentRequirements.payTo,
-          amount: paymentRequirements.maxAmountRequired,
-        },
-      })
-
-      setIsProcessing(false)
-      onSuccess(paymentPayload)
+  // Stable callback to handle successful confirmation
+  const handleConfirmation = useCallback((confirmedHash: `0x${string}`, fromAddress: string) => {
+    if (hasProcessedRef.current) {
+      console.log("[EVM] Already processed, skipping duplicate")
+      return
     }
-  }, [isConfirmed, txHash, address, network, paymentRequirements, onSuccess])
+    hasProcessedRef.current = true
+
+    console.log("[EVM] Transaction confirmed:", confirmedHash)
+
+    // Create payment payload with transaction hash
+    const caip2Network = NETWORK_TO_CAIP2[network as NetworkType]
+    const paymentPayload = JSON.stringify({
+      x402Version: 1,
+      scheme: "exact",
+      network: caip2Network,
+      payload: {
+        transactionHash: confirmedHash,
+        from: fromAddress,
+        to: paymentRequirements.payTo,
+        amount: paymentRequirements.maxAmountRequired,
+      },
+    })
+
+    // Clear any polling
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current)
+      pollingRef.current = null
+    }
+
+    setIsProcessing(false)
+    onSuccess(paymentPayload)
+  }, [network, paymentRequirements, onSuccess])
+
+  // Handle transaction confirmation from wagmi hook
+  useEffect(() => {
+    console.log("[EVM] Receipt hook state:", { isConfirming, isConfirmed, hasReceipt: !!receipt, txHash })
+
+    if (isConfirmed && txHash && address && !hasProcessedRef.current) {
+      handleConfirmation(txHash, address)
+    }
+  }, [isConfirmed, txHash, address, handleConfirmation, isConfirming, receipt])
+
+  // Manual polling fallback - if wagmi hook doesn't respond in 10 seconds
+  useEffect(() => {
+    if (!txHash || !address || !publicClient || hasProcessedRef.current) return
+
+    console.log("[EVM] Starting manual polling fallback for:", txHash)
+
+    const pollForReceipt = async () => {
+      try {
+        const txReceipt = await publicClient.getTransactionReceipt({ hash: txHash })
+        console.log("[EVM] Manual poll result:", { status: txReceipt?.status, blockNumber: txReceipt?.blockNumber })
+
+        if (txReceipt && txReceipt.status === "success" && !hasProcessedRef.current) {
+          console.log("[EVM] Manual poll confirmed transaction!")
+          handleConfirmation(txHash, address)
+        }
+      } catch (err) {
+        // Transaction not yet mined, continue polling
+        console.log("[EVM] Manual poll - tx not yet confirmed:", err instanceof Error ? err.message : "unknown")
+      }
+    }
+
+    // Start polling after 5 seconds (give wagmi hook a chance first)
+    const startPolling = setTimeout(() => {
+      if (hasProcessedRef.current) return
+
+      console.log("[EVM] Wagmi hook slow, starting manual polling")
+      pollForReceipt() // Check immediately
+      pollingRef.current = setInterval(pollForReceipt, 3000) // Then every 3 seconds
+    }, 5000)
+
+    return () => {
+      clearTimeout(startPolling)
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+        pollingRef.current = null
+      }
+    }
+  }, [txHash, address, publicClient, handleConfirmation])
 
   const handleConnect = async () => {
     onStatusChange("connecting")
@@ -123,6 +189,9 @@ export function EVMWalletConnect({
   const handlePayment = async () => {
     if (!address || !paymentRequirements) return
 
+    // Reset state for new payment
+    hasProcessedRef.current = false
+    setTxHash(undefined)
     setIsProcessing(true)
     onStatusChange("signing")
 
