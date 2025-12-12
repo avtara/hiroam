@@ -58,9 +58,13 @@ export function SolanaWalletConnect({
     try {
       // Parse addresses
       const payToAddress = new PublicKey(paymentRequirements.payTo)
-      const feePayer = paymentRequirements.extra?.feePayer
-        ? new PublicKey(paymentRequirements.extra.feePayer)
-        : publicKey
+
+      console.log("[Solana] Starting payment process...")
+      console.log("[Solana] Payment requirements:", {
+        payTo: paymentRequirements.payTo,
+        maxAmountRequired: paymentRequirements.maxAmountRequired,
+        network,
+      })
 
       // Get token accounts
       const sourceATA = await getAssociatedTokenAddress(usdcMint, publicKey)
@@ -75,11 +79,12 @@ export function SolanaWalletConnect({
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash()
 
-      // Create transaction
+      // Create transaction - user is fee payer for signing
+      // Facilitator may sponsor fees later if configured
       const transaction = new Transaction()
       transaction.recentBlockhash = blockhash
       transaction.lastValidBlockHeight = lastValidBlockHeight
-      transaction.feePayer = feePayer
+      transaction.feePayer = publicKey // User pays fees (wallet must be fee payer to sign)
 
       // Add compute budget instructions
       transaction.add(
@@ -103,8 +108,19 @@ export function SolanaWalletConnect({
         )
       )
 
-      // Sign transaction (partially - facilitator will add fee payer signature)
+      console.log("[Solana] Transaction built:", {
+        feePayer: transaction.feePayer?.toBase58(),
+        blockhash: transaction.recentBlockhash,
+        instructionCount: transaction.instructions.length,
+        sourceATA: sourceATA.toBase58(),
+        destATA: destATA.toBase58(),
+        amount: amount.toString(),
+      })
+
+      // Sign transaction
+      console.log("[Solana] Requesting wallet signature...")
       const signedTx = await signTransaction(transaction)
+      console.log("[Solana] Transaction signed successfully")
 
       // Serialize to base64
       const serializedTx = signedTx.serialize({
