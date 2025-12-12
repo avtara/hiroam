@@ -22,8 +22,9 @@ export const getSolanaWallets = () => [
   new TorusWalletAdapter(),
 ]
 
-// USDC mint addresses
+// USDC mint addresses (Circle's official addresses)
 export const USDC_MINT = {
   solana: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  "solana-devnet": "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr",
+  // Circle's official devnet USDC - get from https://faucet.circle.com/
+  "solana-devnet": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
 } as const
