@@ -150,3 +150,25 @@ html {
 :focus-visible {
   @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
+
+/* ===========================================
+   Solana Wallet Adapter Modal z-index fix
+   Fix: Wallet modal must appear ABOVE radix Dialog
+   Radix Dialog uses z-index: 50, so wallet modal needs higher
+   =========================================== */
+.wallet-adapter-modal-wrapper {
+  z-index: 100 !important;
+}
+
+.wallet-adapter-modal-overlay {
+  z-index: 99 !important;
+}
+
+/* Ensure wallet dropdown also appears above dialogs */
+.wallet-adapter-dropdown {
+  z-index: 100 !important;
+}
+
+.wallet-adapter-dropdown-list {
+  z-index: 100 !important;
+}
