@@ -20,6 +20,7 @@ import {
   X,
   AlertTriangle,
   Calendar,
+  Coins,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,6 +39,10 @@ import type { DiscountCode } from "@/types/database"
 import { usePriceSchedules, calculateCartTotals } from "@/hooks/use-price-schedules"
 import { formatPriceWithDiscount } from "@/lib/price-utils"
 import { isUnlimitedPackage, getDataTypeLabel } from "@/types/location"
+import { PaymentMethodSelector, type PaymentMethod } from "@/components/checkout/PaymentMethodSelector"
+import { X402PaymentModal } from "@/components/checkout/X402PaymentModal"
+import { useX402Availability } from "@/hooks/use-x402-availability"
+import type { PaymentRequirements } from "@/types/x402"
 
 const checkoutSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -67,6 +72,13 @@ export default function CheckoutPage() {
   const [promoInput, setPromoInput] = useState("")
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
   const [promoError, setPromoError] = useState<string | null>(null)
+
+  // x402 payment state
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("paddle")
+  const [x402ModalOpen, setX402ModalOpen] = useState(false)
+  const [x402OrderId, setX402OrderId] = useState<string | null>(null)
+  const [paymentRequirements, setPaymentRequirements] = useState<PaymentRequirements | null>(null)
+  const { isX402Available } = useX402Availability()
 
   // Get singleton Supabase client
   const supabase = createClient()
@@ -268,10 +280,90 @@ export default function CheckoutPage() {
     }
   }
 
+  // Handle x402 checkout
+  const handleX402Checkout = async (formData: CheckoutFormData) => {
+    setIsLoading(true)
+    console.log("[Checkout] Starting x402 checkout process...")
+
+    // Get fresh items from store
+    const freshItems = useCartStore.getState().items
+
+    try {
+      // Prepare cart items
+      const cartItems = freshItems.map((item) => ({
+        package_code: item.package.package_code,
+        quantity: item.quantity,
+        period_num: item.periodNum ?? null,
+      }))
+
+      // Get auth token
+      let accessToken = session?.access_token
+      if (user && !accessToken) {
+        const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession()
+        if (!refreshError) {
+          accessToken = refreshedSession?.session?.access_token
+        }
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/checkout-x402`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+          },
+          body: JSON.stringify({
+            items: cartItems,
+            customer_email: formData.email,
+            customer_name: formData.fullName,
+            currency_code: "USD",
+            promo_code: promoCode || undefined,
+          }),
+        }
+      )
+
+      const data = await response.json()
+      console.log("[Checkout] x402 checkout response:", data)
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create x402 checkout")
+      }
+
+      // Open x402 payment modal
+      setX402OrderId(data.order_id)
+      setPaymentRequirements(data.payment_requirements)
+      setX402ModalOpen(true)
+    } catch (error) {
+      console.error("[Checkout] x402 error:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      toast.error(errorMessage || "Terjadi kesalahan saat membuat checkout")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle x402 payment success
+  const handleX402Success = (transactionHash: string) => {
+    console.log("[Checkout] x402 payment success:", transactionHash)
+    toast.success("Pembayaran berhasil!")
+    clearCart()
+    // Redirect to order page
+    if (x402OrderId) {
+      router.push(`/order/success?order=${x402OrderId}&tx=${transactionHash}`)
+    }
+  }
+
   const onSubmit = async (data: CheckoutFormData) => {
     // Double check currency
     if (currency === "IDR") {
       toast.error("Pembayaran dengan IDR belum tersedia")
+      return
+    }
+
+    // Route to x402 checkout if selected
+    if (paymentMethod === "x402") {
+      await handleX402Checkout(data)
       return
     }
 
@@ -729,6 +821,18 @@ export default function CheckoutPage() {
                   Pembayaran dalam <span className="font-semibold text-foreground">{currency}</span>
                 </p>
               </div>
+
+              {/* Payment Method Selector */}
+              {currency === "USD" && (
+                <div className="pt-2">
+                  <PaymentMethodSelector
+                    totalUsd={total}
+                    onSelect={setPaymentMethod}
+                    selected={paymentMethod}
+                    x402Enabled={isX402Available}
+                  />
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex-col space-y-4">
               <Button
@@ -740,10 +844,12 @@ export default function CheckoutPage() {
               >
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : paymentMethod === "x402" ? (
+                  <Coins className="mr-2 h-4 w-4" />
                 ) : (
                   <CreditCard className="mr-2 h-4 w-4" />
                 )}
-                Bayar Sekarang
+                {paymentMethod === "x402" ? "Bayar dengan USDC" : "Bayar Sekarang"}
               </Button>
 
               <p className="text-xs text-center text-muted-foreground">
@@ -757,6 +863,16 @@ export default function CheckoutPage() {
           </Card>
         </div>
       </div>
+
+      {/* x402 Payment Modal */}
+      <X402PaymentModal
+        open={x402ModalOpen}
+        onOpenChange={setX402ModalOpen}
+        orderId={x402OrderId || ""}
+        paymentRequirements={paymentRequirements}
+        onSuccess={handleX402Success}
+        onError={(error) => toast.error(error)}
+      />
     </div>
   )
 }
