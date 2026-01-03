@@ -135,15 +135,12 @@ export function getLocationImageUrl(
     if (logoUrl.startsWith("http")) {
       return logoUrl;
     }
-    // Relative URL from static.redteago.com
-    if (logoUrl.startsWith("/img/")) {
-      return `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code.toUpperCase()}.svg`;
-    }
+
     // Any other relative path
     return logoUrl;
   }
   // Fallback to local flag
-  return getFlagUrl(countryCode);
+  return `https://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode.toUpperCase()}.svg`;
 }
 
 // Extract country name from package name
