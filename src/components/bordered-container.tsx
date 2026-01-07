@@ -29,9 +29,7 @@ export function BorderedContainer({
   innerClassName,
 }: BorderedContainerProps) {
   return (
-    <div
-      className={cn("border border-border bg-white p-1 rounded-4xl", className)}
-    >
+    <div className={cn("border border-2 bg-white p-1 rounded-3xl", className)}>
       <div className={cn("p-2 bg-gray-100 rounded-3xl", innerClassName)}>
         <div className="rounded-3xl">{children}</div>
       </div>

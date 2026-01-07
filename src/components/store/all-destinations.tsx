@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { BorderedContainer } from "@/components/bordered-container";
 import { DestinationCard } from "@/components/landing/destination-card";
@@ -12,10 +12,9 @@ import type {
   RegionWithPackageCount,
 } from "@/services/locations";
 
-interface PopularDestinationsProps {
+interface AllDestinationsProps {
   countries: LocationWithPackageCount[];
   regions: RegionWithPackageCount[];
-  globalCountries: LocationWithPackageCount[];
   innerClassName?: string;
   borderClassName?: string;
   centerHeader?: boolean;
@@ -80,40 +79,136 @@ function RegionDestinationCard({
   return cardContent;
 }
 
-export function PopularDestinations({
+function AlphabetFilter({
+  alphabet,
+  selectedLetter,
+  onSelectLetter,
+  countriesByLetter,
+}: {
+  alphabet: string[];
+  selectedLetter: string;
+  onSelectLetter: (letter: string) => void;
+  countriesByLetter: Record<string, LocationWithPackageCount[]>;
+}) {
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-3 overflow-x-auto pb-2">
+        <button
+          type="button"
+          onClick={() => onSelectLetter("ALL")}
+          className={[
+            "shrink-0 rounded-full border px-5 py-2 text-sm font-medium transition-colors",
+            selectedLetter === "ALL"
+              ? "border-primary text-primary"
+              : "border-border text-muted-foreground hover:text-foreground hover:border-primary/50",
+          ].join(" ")}
+        >
+          All
+        </button>
+        {alphabet.map((letter) => {
+          const hasResults = (countriesByLetter[letter]?.length ?? 0) > 0;
+          const active = selectedLetter === letter;
+          return (
+            <button
+              key={letter}
+              type="button"
+              onClick={() => onSelectLetter(letter)}
+              disabled={!hasResults}
+              className={[
+                "shrink-0 h-12 w-12 rounded-full border text-sm font-medium transition-colors",
+                active
+                  ? "border-primary text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary/50",
+                !hasResults ? "opacity-40 cursor-not-allowed" : "",
+              ].join(" ")}
+            >
+              {letter}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function AllDestinations({
   countries,
   regions,
   innerClassName,
-  globalCountries,
   borderClassName,
   centerHeader = false,
-}: PopularDestinationsProps) {
+}: AllDestinationsProps) {
+  const [selectedLetter, setSelectedLetter] = useState<string>("ALL");
+
   // Get popular countries
-  const popularCountries = countries.filter((c) => c.popular).slice(0, 9);
+  const popularCountries = countries.filter((c) => c.popular);
+
+  // Get all countries
+  const allCountries = countries;
 
   // Get all regions
   const allRegions = regions;
 
-  // Get all countries for Global tab
-  const allCountries = globalCountries;
-
+  const isPopularVisible = popularCountries.length > 0;
+  const isCountryVisible = allCountries.length > 0;
   const isRegionVisible = allRegions.length > 0;
-  const isCountryVisible = popularCountries.length > 0;
-  const isGlobalVisible = allCountries.length > 0;
+
+  // Determine default tab
+  const defaultTab = isPopularVisible
+    ? "popular"
+    : isCountryVisible
+      ? "countries"
+      : isRegionVisible
+        ? "regions"
+        : "global";
 
   const isHideTabs =
-    [isCountryVisible, isRegionVisible, isGlobalVisible].filter(Boolean)
+    [isPopularVisible, isCountryVisible, isRegionVisible].filter(Boolean)
       .length === 1;
+
+  // Group countries by first letter for alphabet filtering
+  const countriesByLetter = useMemo(() => {
+    const grouped: Record<string, LocationWithPackageCount[]> = {};
+    allCountries.forEach((country) => {
+      const letter = country.name.charAt(0).toUpperCase();
+      (grouped[letter] ||= []).push(country);
+    });
+    return grouped;
+  }, [allCountries]);
+
+  const alphabet = useMemo(
+    () => Object.keys(countriesByLetter).sort(),
+    [countriesByLetter],
+  );
+
+  // Filter countries based on selected letter
+  const filteredCountries = useMemo(() => {
+    const list =
+      selectedLetter === "ALL"
+        ? allCountries
+        : (countriesByLetter[selectedLetter] ?? []);
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }, [allCountries, countriesByLetter, selectedLetter]);
 
   return (
     <section>
-      <PopularDestinationHeader centered={centerHeader} />
+      <AllDestinationsHeader centered={centerHeader} />
 
-      <Tabs defaultValue="countries">
+      <Tabs
+        defaultValue={defaultTab}
+        onValueChange={() => setSelectedLetter("ALL")}
+      >
         <TabsList
           className="h-auto bg-transparent p-0 gap-3"
           hidden={isHideTabs}
         >
+          <TabsTrigger
+            value="popular"
+            hidden={!isPopularVisible}
+            className="rounded-full px-5 py-2 border border-border data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          >
+            Popular
+          </TabsTrigger>
           <TabsTrigger
             value="countries"
             hidden={!isCountryVisible}
@@ -130,32 +225,21 @@ export function PopularDestinations({
           </TabsTrigger>
           <TabsTrigger
             value="global"
-            hidden={!isGlobalVisible}
+            hidden={!isCountryVisible}
             className="rounded-full px-5 py-2 border border-border data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             Global
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="countries" className="mt-6">
+        {/* Popular Tab */}
+        <TabsContent value="popular" className="mt-6">
           <BorderedContainer
             className={borderClassName}
             innerClassName={innerClassName}
           >
-            <div className="gap-4 grid-cols-3 lg:grid hidden">
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
               {popularCountries.map((country) => (
-                <DestinationCard
-                  key={country.code}
-                  name={country.name}
-                  code={country.code.toLowerCase()}
-                  flag=""
-                  price={country.minPriceUsdCents / 10000}
-                  href={`/store/${country.code.toLowerCase()}`}
-                />
-              ))}
-            </div>
-            <div className="gap-4 grid-cols-2 grid lg:hidden">
-              {popularCountries.slice(3).map((country) => (
                 <DestinationCard
                   key={country.code}
                   name={country.name}
@@ -169,12 +253,40 @@ export function PopularDestinations({
           </BorderedContainer>
         </TabsContent>
 
+        {/* Countries Tab */}
+        <TabsContent value="countries" className="mt-6">
+          <AlphabetFilter
+            alphabet={alphabet}
+            selectedLetter={selectedLetter}
+            onSelectLetter={setSelectedLetter}
+            countriesByLetter={countriesByLetter}
+          />
+          <BorderedContainer
+            className={borderClassName}
+            innerClassName={innerClassName}
+          >
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+              {filteredCountries.map((country) => (
+                <DestinationCard
+                  key={country.code}
+                  name={country.name}
+                  code={country.code.toLowerCase()}
+                  flag=""
+                  price={country.minPriceUsdCents / 10000}
+                  href={`/store/${country.code.toLowerCase()}`}
+                />
+              ))}
+            </div>
+          </BorderedContainer>
+        </TabsContent>
+
+        {/* Regions Tab */}
         <TabsContent value="regions" className="mt-6">
           <BorderedContainer
             className={borderClassName}
             innerClassName={innerClassName}
           >
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {allRegions.map((region) => (
                 <RegionDestinationCard
                   key={region.code}
@@ -188,13 +300,20 @@ export function PopularDestinations({
           </BorderedContainer>
         </TabsContent>
 
+        {/* Global Tab - Same as Countries with alphabet filter */}
         <TabsContent value="global" className="mt-6">
+          <AlphabetFilter
+            alphabet={alphabet}
+            selectedLetter={selectedLetter}
+            onSelectLetter={setSelectedLetter}
+            countriesByLetter={countriesByLetter}
+          />
           <BorderedContainer
             className={borderClassName}
             innerClassName={innerClassName}
           >
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {allCountries.map((country) => (
+              {filteredCountries.map((country) => (
                 <DestinationCard
                   key={country.code}
                   name={country.name}
@@ -212,7 +331,7 @@ export function PopularDestinations({
   );
 }
 
-export function PopularDestinationHeader({
+export function AllDestinationsHeader({
   centered = false,
 }: {
   centered?: boolean;
@@ -220,11 +339,12 @@ export function PopularDestinationHeader({
   return (
     <div className={`mb-6 ${centered ? "text-center" : ""}`}>
       <h2 className="text-5xl font-normal leading-12 tracking-normal">
-        <span className="text-primary">Popular</span>{" "}
-        <span className="text-foreground">Destination</span>
+        <span className="text-primary">All</span>{" "}
+        <span className="text-foreground">Destinations</span>
       </h2>
       <p className="mt-2 text-muted-foreground">
-        Get connected instantly in your favorite travel destinations
+        Browse all available destinations and find the perfect eSIM for your
+        trip
       </p>
     </div>
   );

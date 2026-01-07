@@ -4,24 +4,22 @@ import {
   getCountriesWithPackages,
   getRegionsWithPackages,
 } from "@/services/locations";
-import {
-  PopularDestinationHeader,
-  PopularDestinations,
-} from "./popular-destinations";
+import { AllDestinationsHeader, AllDestinations } from "./all-destinations";
 
-function PopularDestinationsSkeleton() {
+function AllDestinationsSkeleton() {
   return (
     <section className="mb-12">
       <div className="mb-6">
-        <PopularDestinationHeader />
+        <AllDestinationsHeader />
       </div>
       <div className="flex gap-3 mb-6">
         <Skeleton className="h-10 w-24 rounded-full" />
         <Skeleton className="h-10 w-24 rounded-full" />
         <Skeleton className="h-10 w-24 rounded-full" />
+        <Skeleton className="h-10 w-24 rounded-full" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[...Array(6)].map((_, i) => (
+        {[...Array(9)].map((_, i) => (
           <Skeleton key={i} className="h-64 rounded-2xl" />
         ))}
       </div>
@@ -30,42 +28,33 @@ function PopularDestinationsSkeleton() {
 }
 
 type Props = {
-  disableRegions?: boolean;
-  disableCountries?: boolean;
-  disableGlobal?: boolean;
   innerClassName?: string;
   borderClassName?: string;
   centerHeader?: boolean;
 };
 
-export function PopularDestinationsSection(props: Props) {
+export function AllDestinationsSection(props: Props) {
   return (
-    <Suspense fallback={<PopularDestinationsSkeleton />}>
-      <PopularDestinationsSectionAsync {...props} />
+    <Suspense fallback={<AllDestinationsSkeleton />}>
+      <AllDestinationsSectionAsync {...props} />
     </Suspense>
   );
 }
 
-async function PopularDestinationsSectionAsync({
-  disableRegions,
-  disableCountries,
-  disableGlobal,
+async function AllDestinationsSectionAsync({
   innerClassName,
   borderClassName,
   centerHeader,
 }: Props) {
   const [countries, regions] = await Promise.all([
-    disableCountries ? Promise.resolve([]) : getCountriesWithPackages(),
-    disableRegions ? Promise.resolve([]) : getRegionsWithPackages(),
+    getCountriesWithPackages(),
+    getRegionsWithPackages(),
   ]);
 
-  const globalCountries = disableGlobal ? [] : countries;
-
   return (
-    <PopularDestinations
+    <AllDestinations
       countries={countries}
       regions={regions}
-      globalCountries={globalCountries}
       innerClassName={innerClassName}
       borderClassName={borderClassName}
       centerHeader={centerHeader}

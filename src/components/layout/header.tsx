@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, ShoppingCart, User, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingCart, User, ChevronDown, Search } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { CurrencySwitcher } from "@/components/currency-switcher";
 
 const navigation = [
-  { name: "Home", href: "/" },
   { name: "Store", href: "/store" },
   { name: "Compatibility", href: "/device-compatibility" },
   { name: "Track Order", href: "/check-order" },
@@ -37,24 +37,37 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full">
-      <div className="w-[95%] lg:w-[60%] mx-auto px-4 pt-4">
-        <nav
-          className="relative flex h-16 items-center rounded-full bg-background px-8 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-          style={{ boxShadow: "0px 14px 34px 0px #0000000D" }}
-        >
+    <header className="sticky top-4 z-50 w-full container mx-auto">
+      <div className="mx-auto px-4 py-4">
+        <nav className="flex h-16 items-center gap-6 rounded-full bg-white px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-primary">HIROAM</span>
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
+              m
+            </div>
+            <span className="text-xl font-semibold">
+              <span className="text-foreground">Hi</span>
+              <span className="text-primary">Roaming</span>
+            </span>
           </Link>
 
-          {/* Desktop Navigation - Centered */}
-          <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex md:items-center md:space-x-6">
+          {/* Search Bar */}
+          <div className="relative hidden flex-1 md:block">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search for your destination (e.g., Japan, Europe, USA...)"
+              className="h-10 w-full rounded-full border-1 pl-10 pr-4"
+            />
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden items-center gap-8 lg:flex">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
               >
                 {item.name}
               </Link>
@@ -62,16 +75,15 @@ export function Header() {
           </div>
 
           {/* Right side actions */}
-          <div className="ml-auto flex items-center space-x-2 md:space-x-4">
-            {/* Currency Switcher */}
-            <div className="hidden md:block">
-              <CurrencySwitcher />
-            </div>
-
+          <div className="ml-auto flex items-center gap-4">
             {/* Cart */}
             <Link href="/cart" className="relative">
-              <Button variant="ghost" size="icon">
-                <ShoppingCart className="h-5 w-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-transparent"
+              >
+                <ShoppingCart className="h-6 w-6" />
                 {mounted && itemCount > 0 && (
                   <Badge
                     variant="destructive"
@@ -128,18 +140,16 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="hidden md:flex md:items-center">
-                <Button asChild>
-                  <Link href="/login">Sign In</Link>
-                </Button>
-              </div>
+              <Button asChild className="hidden rounded-full md:inline-flex">
+                <Link href="/login">Sign In</Link>
+              </Button>
             )}
 
             {/* Mobile menu button */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
@@ -155,28 +165,35 @@ export function Header() {
       {/* Mobile Navigation */}
       <div
         className={cn(
-          "md:hidden container mx-auto px-4",
-          mobileMenuOpen ? "block" : "hidden"
+          "container mx-auto px-4 lg:hidden",
+          mobileMenuOpen ? "block" : "hidden",
         )}
       >
-        <div className="mt-2 rounded-2xl border bg-background shadow-sm">
+        <div className="mt-2 rounded-2xl border bg-white shadow-sm">
           <div className="space-y-1 px-4 pb-4 pt-4">
+            {/* Mobile Search */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search for your destination..."
+                className="h-10 w-full rounded-full border-0 bg-muted pl-10 pr-4"
+              />
+            </div>
+
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="block px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+                className="block px-3 py-2 text-sm font-medium text-foreground hover:text-primary"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
               </Link>
             ))}
-            <div className="px-3 py-2">
-              <CurrencySwitcher />
-            </div>
             {!user && (
               <div className="mt-4 flex flex-col space-y-2 px-3">
-                <Button variant="outline" asChild>
+                <Button asChild className="rounded-full">
                   <Link href="/login">Sign In</Link>
                 </Button>
               </div>

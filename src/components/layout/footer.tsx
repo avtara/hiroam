@@ -46,10 +46,10 @@ export function Footer({ className }: Props) {
       <div className={cn("px-2 py-4", className)}>
         <div className="mx-2">
           {/* Footer card */}
-          <div className="rounded-[32px] border border-border bg-white px-10 py-12 shadow-[0px_22px_60px_rgba(0,0,0,0.18)]">
-            <div className="grid gap-10 lg:grid-cols-[1.35fr_1fr_1fr_1fr]">
+          <div className="rounded-[32px] border border-border bg-white px-6 py-8 shadow-[0px_22px_60px_rgba(0,0,0,0.18)] md:px-10 md:py-12">
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-[1.35fr_1fr_1fr_1fr] lg:gap-10">
               {/* Brand */}
-              <div>
+              <div className="col-span-2 md:col-span-3 lg:col-span-1">
                 <Link href="/" className="inline-flex items-center">
                   <Brand />
                 </Link>
