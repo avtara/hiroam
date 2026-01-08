@@ -14,7 +14,7 @@ interface FloatingPackageBarProps {
   onIncrement: () => void;
   onDecrement: () => void;
   onAddToCart: () => void;
-  onCheckout: () => void;
+  onCheckoutOnly: () => void;
 }
 
 export function FloatingPackageBar({
@@ -25,7 +25,7 @@ export function FloatingPackageBar({
   onIncrement,
   onDecrement,
   onAddToCart,
-  onCheckout,
+  onCheckoutOnly,
 }: FloatingPackageBarProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg z-50 animate-in slide-in-from-bottom">
@@ -60,9 +60,15 @@ export function FloatingPackageBar({
             <Button type="button" variant="outline" onClick={onAddToCart}>
               Add to Cart
             </Button>
-            <Button type="button" onClick={onCheckout} className="bg-primary">
+            <Button
+              type="button"
+              onClick={onCheckoutOnly}
+              className="bg-primary"
+            >
               Checkout {currency === "USD" ? "$" : "Rp"}
-              {Math.round(totalPrice)}
+              {currency === "USD"
+                ? totalPrice.toFixed(2)
+                : Math.round(totalPrice).toLocaleString("id-ID")}
             </Button>
           </div>
         </div>
@@ -107,11 +113,13 @@ export function FloatingPackageBar({
             </Button>
             <Button
               type="button"
-              onClick={onCheckout}
+              onClick={onCheckoutOnly}
               className="bg-primary w-full"
             >
               Checkout {currency === "USD" ? "$" : "Rp"}
-              {Math.round(totalPrice)}
+              {currency === "USD"
+                ? totalPrice.toFixed(2)
+                : Math.round(totalPrice).toLocaleString("id-ID")}
             </Button>
           </div>
         </div>

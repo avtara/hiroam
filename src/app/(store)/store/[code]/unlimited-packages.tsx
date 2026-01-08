@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Wifi, Clock, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import type { EsimPackage } from "@/types/database";
 import {
   calculateEffectivePrice,
   formatPriceWithDiscount,
+  centsToUsd,
   type PriceSchedule,
 } from "@/lib/price-utils";
 import { toast } from "sonner";
@@ -31,6 +33,7 @@ export function UnlimitedPackages({
 }: UnlimitedPackagesProps) {
   const currency = useCurrencyStore((state) => state.currency);
   const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
 
   // Group packages by data type (FUP level)
   const groupedByDataType = useMemo(() => {
@@ -98,13 +101,13 @@ export function UnlimitedPackages({
 
     const pricePerDay =
       currency === "USD"
-        ? effectivePrice.finalUsdCents / 100
+        ? centsToUsd(effectivePrice.finalUsdCents)
         : effectivePrice.finalIdr;
 
     const total = pricePerDay * days;
 
     return currency === "USD"
-      ? `$${Math.round(total)}`
+      ? `$${total.toFixed(2)}`
       : `Rp${Math.round(total).toLocaleString("id-ID")}`;
   }, [selectedPackage, effectivePrice, days, currency]);
 
@@ -114,6 +117,17 @@ export function UnlimitedPackages({
     toast.success(
       `${selectedPackage.display_name || selectedPackage.name} ditambahkan ke keranjang`,
     );
+  };
+
+  const handleCheckout = () => {
+    if (!selectedPackage) return;
+    // Create temporary cart with only this item
+    const tempCart = {
+      items: [selectedPackage],
+      quantity: 1,
+    };
+    // Navigate to checkout with the selected package
+    router.push(`/checkout?item=${selectedPackage.id}`);
   };
 
   const incrementDays = () => setDays((prev) => Math.min(prev + 1, 365));
@@ -179,18 +193,18 @@ export function UnlimitedPackages({
                   );
                   const pricePerDay =
                     currency === "USD"
-                      ? pkgEffectivePrice.finalUsdCents / 100
+                      ? centsToUsd(pkgEffectivePrice.finalUsdCents)
                       : pkgEffectivePrice.finalIdr;
                   const totalCost = pricePerDay * days;
 
                   const pricePerDayFormatted =
                     currency === "USD"
-                      ? `$${Math.round(pricePerDay)}`
+                      ? `$${pricePerDay.toFixed(2)}`
                       : `Rp${Math.round(pricePerDay).toLocaleString("id-ID")}`;
 
                   const totalCostFormatted =
                     currency === "USD"
-                      ? `$${Math.round(totalCost)}`
+                      ? `$${totalCost.toFixed(2)}`
                       : `Rp${Math.round(totalCost).toLocaleString("id-ID")}`;
 
                   return (
@@ -294,7 +308,7 @@ export function UnlimitedPackages({
                   </Button>
                   <Button
                     type="button"
-                    onClick={handleAddToCart}
+                    onClick={handleCheckout}
                     className="md:flex-none rounded-full bg-teal-600 hover:bg-teal-700 md:min-w-[120px]"
                   >
                     Checkout {totalPrice}

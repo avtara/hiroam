@@ -4,704 +4,704 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   public: {
     Tables: {
       admin_audit_log: {
         Row: {
-          action: string
-          admin_id: string | null
-          created_at: string | null
-          entity_id: string | null
-          entity_type: string
-          id: string
-          ip_address: unknown
-          new_values: Json | null
-          old_values: Json | null
-          user_agent: string | null
-        }
+          action: string;
+          admin_id: string | null;
+          created_at: string | null;
+          entity_id: string | null;
+          entity_type: string;
+          id: string;
+          ip_address: unknown;
+          new_values: Json | null;
+          old_values: Json | null;
+          user_agent: string | null;
+        };
         Insert: {
-          action: string
-          admin_id?: string | null
-          created_at?: string | null
-          entity_id?: string | null
-          entity_type: string
-          id?: string
-          ip_address?: unknown
-          new_values?: Json | null
-          old_values?: Json | null
-          user_agent?: string | null
-        }
+          action: string;
+          admin_id?: string | null;
+          created_at?: string | null;
+          entity_id?: string | null;
+          entity_type: string;
+          id?: string;
+          ip_address?: unknown;
+          new_values?: Json | null;
+          old_values?: Json | null;
+          user_agent?: string | null;
+        };
         Update: {
-          action?: string
-          admin_id?: string | null
-          created_at?: string | null
-          entity_id?: string | null
-          entity_type?: string
-          id?: string
-          ip_address?: unknown
-          new_values?: Json | null
-          old_values?: Json | null
-          user_agent?: string | null
-        }
-        Relationships: []
-      }
+          action?: string;
+          admin_id?: string | null;
+          created_at?: string | null;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: string;
+          ip_address?: unknown;
+          new_values?: Json | null;
+          old_values?: Json | null;
+          user_agent?: string | null;
+        };
+        Relationships: [];
+      };
       discount_codes: {
         Row: {
-          applicable_packages: string[] | null
-          authenticated_only: boolean | null
-          code: string
-          created_at: string | null
-          currency_code: string | null
-          current_uses: number | null
-          description: string | null
-          discount_type: string
-          discount_value: number
-          discount_value_idr: number | null
-          excluded_packages: string[] | null
-          expires_at: string | null
-          first_purchase_only: boolean | null
-          id: string
-          is_active: boolean | null
-          max_discount_cents: number | null
-          max_discount_idr: number | null
-          max_uses: number | null
-          max_uses_per_user: number | null
-          min_purchase_cents: number | null
-          min_purchase_idr: number | null
-          name: string
-          stackable_with_product_discount: boolean | null
-          starts_at: string | null
-          updated_at: string | null
-        }
+          applicable_packages: string[] | null;
+          authenticated_only: boolean | null;
+          code: string;
+          created_at: string | null;
+          currency_code: string | null;
+          current_uses: number | null;
+          description: string | null;
+          discount_type: string;
+          discount_value: number;
+          discount_value_idr: number | null;
+          excluded_packages: string[] | null;
+          expires_at: string | null;
+          first_purchase_only: boolean | null;
+          id: string;
+          is_active: boolean | null;
+          max_discount_cents: number | null;
+          max_discount_idr: number | null;
+          max_uses: number | null;
+          max_uses_per_user: number | null;
+          min_purchase_cents: number | null;
+          min_purchase_idr: number | null;
+          name: string;
+          stackable_with_product_discount: boolean | null;
+          starts_at: string | null;
+          updated_at: string | null;
+        };
         Insert: {
-          applicable_packages?: string[] | null
-          authenticated_only?: boolean | null
-          code: string
-          created_at?: string | null
-          currency_code?: string | null
-          current_uses?: number | null
-          description?: string | null
-          discount_type: string
-          discount_value: number
-          discount_value_idr?: number | null
-          excluded_packages?: string[] | null
-          expires_at?: string | null
-          first_purchase_only?: boolean | null
-          id?: string
-          is_active?: boolean | null
-          max_discount_cents?: number | null
-          max_discount_idr?: number | null
-          max_uses?: number | null
-          max_uses_per_user?: number | null
-          min_purchase_cents?: number | null
-          min_purchase_idr?: number | null
-          name: string
-          stackable_with_product_discount?: boolean | null
-          starts_at?: string | null
-          updated_at?: string | null
-        }
+          applicable_packages?: string[] | null;
+          authenticated_only?: boolean | null;
+          code: string;
+          created_at?: string | null;
+          currency_code?: string | null;
+          current_uses?: number | null;
+          description?: string | null;
+          discount_type: string;
+          discount_value: number;
+          discount_value_idr?: number | null;
+          excluded_packages?: string[] | null;
+          expires_at?: string | null;
+          first_purchase_only?: boolean | null;
+          id?: string;
+          is_active?: boolean | null;
+          max_discount_cents?: number | null;
+          max_discount_idr?: number | null;
+          max_uses?: number | null;
+          max_uses_per_user?: number | null;
+          min_purchase_cents?: number | null;
+          min_purchase_idr?: number | null;
+          name: string;
+          stackable_with_product_discount?: boolean | null;
+          starts_at?: string | null;
+          updated_at?: string | null;
+        };
         Update: {
-          applicable_packages?: string[] | null
-          authenticated_only?: boolean | null
-          code?: string
-          created_at?: string | null
-          currency_code?: string | null
-          current_uses?: number | null
-          description?: string | null
-          discount_type?: string
-          discount_value?: number
-          discount_value_idr?: number | null
-          excluded_packages?: string[] | null
-          expires_at?: string | null
-          first_purchase_only?: boolean | null
-          id?: string
-          is_active?: boolean | null
-          max_discount_cents?: number | null
-          max_discount_idr?: number | null
-          max_uses?: number | null
-          max_uses_per_user?: number | null
-          min_purchase_cents?: number | null
-          min_purchase_idr?: number | null
-          name?: string
-          stackable_with_product_discount?: boolean | null
-          starts_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+          applicable_packages?: string[] | null;
+          authenticated_only?: boolean | null;
+          code?: string;
+          created_at?: string | null;
+          currency_code?: string | null;
+          current_uses?: number | null;
+          description?: string | null;
+          discount_type?: string;
+          discount_value?: number;
+          discount_value_idr?: number | null;
+          excluded_packages?: string[] | null;
+          expires_at?: string | null;
+          first_purchase_only?: boolean | null;
+          id?: string;
+          is_active?: boolean | null;
+          max_discount_cents?: number | null;
+          max_discount_idr?: number | null;
+          max_uses?: number | null;
+          max_uses_per_user?: number | null;
+          min_purchase_cents?: number | null;
+          min_purchase_idr?: number | null;
+          name?: string;
+          stackable_with_product_discount?: boolean | null;
+          starts_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       esim_packages: {
         Row: {
-          active_type: number | null
-          available_from: string | null
-          available_until: string | null
-          base_price_cents: number
-          category: string | null
-          created_at: string | null
-          custom_description: string | null
-          data_type: number | null
-          description: string | null
-          display_name: string | null
-          duration: number
-          duration_unit: string | null
-          fup_policy: string | null
-          id: string
-          image_url: string | null
-          ip_export: string | null
-          is_active: boolean | null
-          is_available: boolean | null
-          is_bestseller: boolean | null
-          is_featured: boolean | null
-          is_new: boolean | null
-          location_codes: string[] | null
-          location_names: Json | null
-          max_per_order: number | null
-          name: string
-          operator_list: Json | null
-          package_code: string
-          price_idr: number
-          price_usd_cents: number
-          retail_price_cents: number | null
-          slug: string | null
-          sms_status: number | null
-          sort_order: number | null
-          speed: string | null
-          stock_quantity: number | null
-          stock_type: string | null
-          support_topup: boolean | null
-          sync_error: string | null
-          sync_status: string | null
-          synced_at: string | null
-          tags: string[] | null
-          unavailable_reason: string | null
-          updated_at: string | null
-          volume_bytes: number
-        }
+          active_type: number | null;
+          available_from: string | null;
+          available_until: string | null;
+          base_price_cents: number;
+          category: string | null;
+          created_at: string | null;
+          custom_description: string | null;
+          data_type: number | null;
+          description: string | null;
+          display_name: string | null;
+          duration: number;
+          duration_unit: string | null;
+          fup_policy: string | null;
+          id: string;
+          image_url: string | null;
+          ip_export: string | null;
+          is_active: boolean | null;
+          is_available: boolean | null;
+          is_bestseller: boolean | null;
+          is_featured: boolean | null;
+          is_new: boolean | null;
+          location_codes: string[] | null;
+          location_names: Json | null;
+          max_per_order: number | null;
+          name: string;
+          operator_list: Json | null;
+          package_code: string;
+          price_idr: number;
+          price_usd_cents: number;
+          retail_price_cents: number | null;
+          slug: string | null;
+          sms_status: number | null;
+          sort_order: number | null;
+          speed: string | null;
+          stock_quantity: number | null;
+          stock_type: string | null;
+          support_topup: boolean | null;
+          sync_error: string | null;
+          sync_status: string | null;
+          synced_at: string | null;
+          tags: string[] | null;
+          unavailable_reason: string | null;
+          updated_at: string | null;
+          volume_bytes: number;
+        };
         Insert: {
-          active_type?: number | null
-          available_from?: string | null
-          available_until?: string | null
-          base_price_cents: number
-          category?: string | null
-          created_at?: string | null
-          custom_description?: string | null
-          data_type?: number | null
-          description?: string | null
-          display_name?: string | null
-          duration: number
-          duration_unit?: string | null
-          fup_policy?: string | null
-          id?: string
-          image_url?: string | null
-          ip_export?: string | null
-          is_active?: boolean | null
-          is_available?: boolean | null
-          is_bestseller?: boolean | null
-          is_featured?: boolean | null
-          is_new?: boolean | null
-          location_codes?: string[] | null
-          location_names?: Json | null
-          max_per_order?: number | null
-          name: string
-          operator_list?: Json | null
-          package_code: string
-          price_idr: number
-          price_usd_cents: number
-          retail_price_cents?: number | null
-          slug?: string | null
-          sms_status?: number | null
-          sort_order?: number | null
-          speed?: string | null
-          stock_quantity?: number | null
-          stock_type?: string | null
-          support_topup?: boolean | null
-          sync_error?: string | null
-          sync_status?: string | null
-          synced_at?: string | null
-          tags?: string[] | null
-          unavailable_reason?: string | null
-          updated_at?: string | null
-          volume_bytes: number
-        }
+          active_type?: number | null;
+          available_from?: string | null;
+          available_until?: string | null;
+          base_price_cents: number;
+          category?: string | null;
+          created_at?: string | null;
+          custom_description?: string | null;
+          data_type?: number | null;
+          description?: string | null;
+          display_name?: string | null;
+          duration: number;
+          duration_unit?: string | null;
+          fup_policy?: string | null;
+          id?: string;
+          image_url?: string | null;
+          ip_export?: string | null;
+          is_active?: boolean | null;
+          is_available?: boolean | null;
+          is_bestseller?: boolean | null;
+          is_featured?: boolean | null;
+          is_new?: boolean | null;
+          location_codes?: string[] | null;
+          location_names?: Json | null;
+          max_per_order?: number | null;
+          name: string;
+          operator_list?: Json | null;
+          package_code: string;
+          price_idr: number;
+          price_usd_cents: number;
+          retail_price_cents?: number | null;
+          slug?: string | null;
+          sms_status?: number | null;
+          sort_order?: number | null;
+          speed?: string | null;
+          stock_quantity?: number | null;
+          stock_type?: string | null;
+          support_topup?: boolean | null;
+          sync_error?: string | null;
+          sync_status?: string | null;
+          synced_at?: string | null;
+          tags?: string[] | null;
+          unavailable_reason?: string | null;
+          updated_at?: string | null;
+          volume_bytes: number;
+        };
         Update: {
-          active_type?: number | null
-          available_from?: string | null
-          available_until?: string | null
-          base_price_cents?: number
-          category?: string | null
-          created_at?: string | null
-          custom_description?: string | null
-          data_type?: number | null
-          description?: string | null
-          display_name?: string | null
-          duration?: number
-          duration_unit?: string | null
-          fup_policy?: string | null
-          id?: string
-          image_url?: string | null
-          ip_export?: string | null
-          is_active?: boolean | null
-          is_available?: boolean | null
-          is_bestseller?: boolean | null
-          is_featured?: boolean | null
-          is_new?: boolean | null
-          location_codes?: string[] | null
-          location_names?: Json | null
-          max_per_order?: number | null
-          name?: string
-          operator_list?: Json | null
-          package_code?: string
-          price_idr?: number
-          price_usd_cents?: number
-          retail_price_cents?: number | null
-          slug?: string | null
-          sms_status?: number | null
-          sort_order?: number | null
-          speed?: string | null
-          stock_quantity?: number | null
-          stock_type?: string | null
-          support_topup?: boolean | null
-          sync_error?: string | null
-          sync_status?: string | null
-          synced_at?: string | null
-          tags?: string[] | null
-          unavailable_reason?: string | null
-          updated_at?: string | null
-          volume_bytes?: number
-        }
-        Relationships: []
-      }
+          active_type?: number | null;
+          available_from?: string | null;
+          available_until?: string | null;
+          base_price_cents?: number;
+          category?: string | null;
+          created_at?: string | null;
+          custom_description?: string | null;
+          data_type?: number | null;
+          description?: string | null;
+          display_name?: string | null;
+          duration?: number;
+          duration_unit?: string | null;
+          fup_policy?: string | null;
+          id?: string;
+          image_url?: string | null;
+          ip_export?: string | null;
+          is_active?: boolean | null;
+          is_available?: boolean | null;
+          is_bestseller?: boolean | null;
+          is_featured?: boolean | null;
+          is_new?: boolean | null;
+          location_codes?: string[] | null;
+          location_names?: Json | null;
+          max_per_order?: number | null;
+          name?: string;
+          operator_list?: Json | null;
+          package_code?: string;
+          price_idr?: number;
+          price_usd_cents?: number;
+          retail_price_cents?: number | null;
+          slug?: string | null;
+          sms_status?: number | null;
+          sort_order?: number | null;
+          speed?: string | null;
+          stock_quantity?: number | null;
+          stock_type?: string | null;
+          support_topup?: boolean | null;
+          sync_error?: string | null;
+          sync_status?: string | null;
+          synced_at?: string | null;
+          tags?: string[] | null;
+          unavailable_reason?: string | null;
+          updated_at?: string | null;
+          volume_bytes?: number;
+        };
+        Relationships: [];
+      };
       esim_profiles: {
         Row: {
-          activation_code: string | null
-          apn: string | null
-          created_at: string | null
-          data_total_bytes: number | null
-          data_used_bytes: number | null
-          device_brand: string | null
-          device_model: string | null
-          device_type: string | null
-          downloaded_at: string | null
-          eid: string | null
-          enabled_at: string | null
-          esim_order_no: string | null
-          esim_status: string | null
-          esim_tran_no: string | null
-          expires_at: string | null
-          iccid: string | null
-          id: string
-          imsi: string | null
-          installed_at: string | null
-          last_topup_at: string | null
-          manual_code: string | null
-          metadata: Json | null
-          order_id: string | null
-          order_item_id: string | null
-          profile_index: number | null
-          qr_code: string | null
-          refund_amount_cents: number | null
-          refund_eligible_at: string | null
-          refund_status: string | null
-          refunded_at: string | null
-          resource_ready_at: string | null
-          short_url: string | null
-          sm_dp_address: string | null
-          smdp_status: string | null
-          support_topup: boolean | null
-          topup_count: number | null
-          topup_history: Json | null
-          updated_at: string | null
-          usage_percentage: number | null
-        }
+          activation_code: string | null;
+          apn: string | null;
+          created_at: string | null;
+          data_total_bytes: number | null;
+          data_used_bytes: number | null;
+          device_brand: string | null;
+          device_model: string | null;
+          device_type: string | null;
+          downloaded_at: string | null;
+          eid: string | null;
+          enabled_at: string | null;
+          esim_order_no: string | null;
+          esim_status: string | null;
+          esim_tran_no: string | null;
+          expires_at: string | null;
+          iccid: string | null;
+          id: string;
+          imsi: string | null;
+          installed_at: string | null;
+          last_topup_at: string | null;
+          manual_code: string | null;
+          metadata: Json | null;
+          order_id: string | null;
+          order_item_id: string | null;
+          profile_index: number | null;
+          qr_code: string | null;
+          refund_amount_cents: number | null;
+          refund_eligible_at: string | null;
+          refund_status: string | null;
+          refunded_at: string | null;
+          resource_ready_at: string | null;
+          short_url: string | null;
+          sm_dp_address: string | null;
+          smdp_status: string | null;
+          support_topup: boolean | null;
+          topup_count: number | null;
+          topup_history: Json | null;
+          updated_at: string | null;
+          usage_percentage: number | null;
+        };
         Insert: {
-          activation_code?: string | null
-          apn?: string | null
-          created_at?: string | null
-          data_total_bytes?: number | null
-          data_used_bytes?: number | null
-          device_brand?: string | null
-          device_model?: string | null
-          device_type?: string | null
-          downloaded_at?: string | null
-          eid?: string | null
-          enabled_at?: string | null
-          esim_order_no?: string | null
-          esim_status?: string | null
-          esim_tran_no?: string | null
-          expires_at?: string | null
-          iccid?: string | null
-          id?: string
-          imsi?: string | null
-          installed_at?: string | null
-          last_topup_at?: string | null
-          manual_code?: string | null
-          metadata?: Json | null
-          order_id?: string | null
-          order_item_id?: string | null
-          profile_index?: number | null
-          qr_code?: string | null
-          refund_amount_cents?: number | null
-          refund_eligible_at?: string | null
-          refund_status?: string | null
-          refunded_at?: string | null
-          resource_ready_at?: string | null
-          short_url?: string | null
-          sm_dp_address?: string | null
-          smdp_status?: string | null
-          support_topup?: boolean | null
-          topup_count?: number | null
-          topup_history?: Json | null
-          updated_at?: string | null
-          usage_percentage?: number | null
-        }
+          activation_code?: string | null;
+          apn?: string | null;
+          created_at?: string | null;
+          data_total_bytes?: number | null;
+          data_used_bytes?: number | null;
+          device_brand?: string | null;
+          device_model?: string | null;
+          device_type?: string | null;
+          downloaded_at?: string | null;
+          eid?: string | null;
+          enabled_at?: string | null;
+          esim_order_no?: string | null;
+          esim_status?: string | null;
+          esim_tran_no?: string | null;
+          expires_at?: string | null;
+          iccid?: string | null;
+          id?: string;
+          imsi?: string | null;
+          installed_at?: string | null;
+          last_topup_at?: string | null;
+          manual_code?: string | null;
+          metadata?: Json | null;
+          order_id?: string | null;
+          order_item_id?: string | null;
+          profile_index?: number | null;
+          qr_code?: string | null;
+          refund_amount_cents?: number | null;
+          refund_eligible_at?: string | null;
+          refund_status?: string | null;
+          refunded_at?: string | null;
+          resource_ready_at?: string | null;
+          short_url?: string | null;
+          sm_dp_address?: string | null;
+          smdp_status?: string | null;
+          support_topup?: boolean | null;
+          topup_count?: number | null;
+          topup_history?: Json | null;
+          updated_at?: string | null;
+          usage_percentage?: number | null;
+        };
         Update: {
-          activation_code?: string | null
-          apn?: string | null
-          created_at?: string | null
-          data_total_bytes?: number | null
-          data_used_bytes?: number | null
-          device_brand?: string | null
-          device_model?: string | null
-          device_type?: string | null
-          downloaded_at?: string | null
-          eid?: string | null
-          enabled_at?: string | null
-          esim_order_no?: string | null
-          esim_status?: string | null
-          esim_tran_no?: string | null
-          expires_at?: string | null
-          iccid?: string | null
-          id?: string
-          imsi?: string | null
-          installed_at?: string | null
-          last_topup_at?: string | null
-          manual_code?: string | null
-          metadata?: Json | null
-          order_id?: string | null
-          order_item_id?: string | null
-          profile_index?: number | null
-          qr_code?: string | null
-          refund_amount_cents?: number | null
-          refund_eligible_at?: string | null
-          refund_status?: string | null
-          refunded_at?: string | null
-          resource_ready_at?: string | null
-          short_url?: string | null
-          sm_dp_address?: string | null
-          smdp_status?: string | null
-          support_topup?: boolean | null
-          topup_count?: number | null
-          topup_history?: Json | null
-          updated_at?: string | null
-          usage_percentage?: number | null
-        }
-        Relationships: []
-      }
+          activation_code?: string | null;
+          apn?: string | null;
+          created_at?: string | null;
+          data_total_bytes?: number | null;
+          data_used_bytes?: number | null;
+          device_brand?: string | null;
+          device_model?: string | null;
+          device_type?: string | null;
+          downloaded_at?: string | null;
+          eid?: string | null;
+          enabled_at?: string | null;
+          esim_order_no?: string | null;
+          esim_status?: string | null;
+          esim_tran_no?: string | null;
+          expires_at?: string | null;
+          iccid?: string | null;
+          id?: string;
+          imsi?: string | null;
+          installed_at?: string | null;
+          last_topup_at?: string | null;
+          manual_code?: string | null;
+          metadata?: Json | null;
+          order_id?: string | null;
+          order_item_id?: string | null;
+          profile_index?: number | null;
+          qr_code?: string | null;
+          refund_amount_cents?: number | null;
+          refund_eligible_at?: string | null;
+          refund_status?: string | null;
+          refunded_at?: string | null;
+          resource_ready_at?: string | null;
+          short_url?: string | null;
+          sm_dp_address?: string | null;
+          smdp_status?: string | null;
+          support_topup?: boolean | null;
+          topup_count?: number | null;
+          topup_history?: Json | null;
+          updated_at?: string | null;
+          usage_percentage?: number | null;
+        };
+        Relationships: [];
+      };
       order_items: {
         Row: {
-          created_at: string | null
-          esim_order_no: string | null
-          final_unit_price_cents: number
-          id: string
-          order_id: string | null
-          package_code: string
-          package_id: string | null
-          package_name: string
-          period_num: number | null
-          product_discount_cents: number | null
-          profiles_cancelled: number | null
-          profiles_delivered: number | null
-          profiles_ordered: number | null
-          quantity: number | null
-          status: string | null
-          topup_esim_profile_id: string | null
-          total_cents: number
-          transaction_id: string | null
-          unit_price_cents: number
-          updated_at: string | null
-        }
+          created_at: string | null;
+          esim_order_no: string | null;
+          final_unit_price_cents: number;
+          id: string;
+          order_id: string | null;
+          package_code: string;
+          package_id: string | null;
+          package_name: string;
+          period_num: number | null;
+          product_discount_cents: number | null;
+          profiles_cancelled: number | null;
+          profiles_delivered: number | null;
+          profiles_ordered: number | null;
+          quantity: number | null;
+          status: string | null;
+          topup_esim_profile_id: string | null;
+          total_cents: number;
+          transaction_id: string | null;
+          unit_price_cents: number;
+          updated_at: string | null;
+        };
         Insert: {
-          created_at?: string | null
-          esim_order_no?: string | null
-          final_unit_price_cents: number
-          id?: string
-          order_id?: string | null
-          package_code: string
-          package_id?: string | null
-          package_name: string
-          period_num?: number | null
-          product_discount_cents?: number | null
-          profiles_cancelled?: number | null
-          profiles_delivered?: number | null
-          profiles_ordered?: number | null
-          quantity?: number | null
-          status?: string | null
-          topup_esim_profile_id?: string | null
-          total_cents: number
-          transaction_id?: string | null
-          unit_price_cents: number
-          updated_at?: string | null
-        }
+          created_at?: string | null;
+          esim_order_no?: string | null;
+          final_unit_price_cents: number;
+          id?: string;
+          order_id?: string | null;
+          package_code: string;
+          package_id?: string | null;
+          package_name: string;
+          period_num?: number | null;
+          product_discount_cents?: number | null;
+          profiles_cancelled?: number | null;
+          profiles_delivered?: number | null;
+          profiles_ordered?: number | null;
+          quantity?: number | null;
+          status?: string | null;
+          topup_esim_profile_id?: string | null;
+          total_cents: number;
+          transaction_id?: string | null;
+          unit_price_cents: number;
+          updated_at?: string | null;
+        };
         Update: {
-          created_at?: string | null
-          esim_order_no?: string | null
-          final_unit_price_cents?: number
-          id?: string
-          order_id?: string | null
-          package_code?: string
-          package_id?: string | null
-          package_name?: string
-          period_num?: number | null
-          product_discount_cents?: number | null
-          profiles_cancelled?: number | null
-          profiles_delivered?: number | null
-          profiles_ordered?: number | null
-          quantity?: number | null
-          status?: string | null
-          topup_esim_profile_id?: string | null
-          total_cents?: number
-          transaction_id?: string | null
-          unit_price_cents?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+          created_at?: string | null;
+          esim_order_no?: string | null;
+          final_unit_price_cents?: number;
+          id?: string;
+          order_id?: string | null;
+          package_code?: string;
+          package_id?: string | null;
+          package_name?: string;
+          period_num?: number | null;
+          product_discount_cents?: number | null;
+          profiles_cancelled?: number | null;
+          profiles_delivered?: number | null;
+          profiles_ordered?: number | null;
+          quantity?: number | null;
+          status?: string | null;
+          topup_esim_profile_id?: string | null;
+          total_cents?: number;
+          transaction_id?: string | null;
+          unit_price_cents?: number;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       price_schedules: {
         Row: {
-          id: string
-          package_id: string | null
-          schedule_name: string
-          schedule_type: string | null
-          discount_type: string | null
-          discount_value: number | null
-          override_price_usd_cents: number | null
-          override_price_idr: number | null
-          starts_at: string
-          ends_at: string
-          priority: number | null
-          badge_text: string | null
-          badge_color: string | null
-          is_active: boolean | null
-          created_by: string | null
-          created_at: string | null
-          updated_at: string | null
-        }
+          id: string;
+          package_id: string | null;
+          schedule_name: string;
+          schedule_type: string | null;
+          discount_type: string | null;
+          discount_value: number | null;
+          override_price_usd_cents: number | null;
+          override_price_idr: number | null;
+          starts_at: string;
+          ends_at: string;
+          priority: number | null;
+          badge_text: string | null;
+          badge_color: string | null;
+          is_active: boolean | null;
+          created_by: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
         Insert: {
-          id?: string
-          package_id?: string | null
-          schedule_name: string
-          schedule_type?: string | null
-          discount_type?: string | null
-          discount_value?: number | null
-          override_price_usd_cents?: number | null
-          override_price_idr?: number | null
-          starts_at: string
-          ends_at: string
-          priority?: number | null
-          badge_text?: string | null
-          badge_color?: string | null
-          is_active?: boolean | null
-          created_by?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
+          id?: string;
+          package_id?: string | null;
+          schedule_name: string;
+          schedule_type?: string | null;
+          discount_type?: string | null;
+          discount_value?: number | null;
+          override_price_usd_cents?: number | null;
+          override_price_idr?: number | null;
+          starts_at: string;
+          ends_at: string;
+          priority?: number | null;
+          badge_text?: string | null;
+          badge_color?: string | null;
+          is_active?: boolean | null;
+          created_by?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
         Update: {
-          id?: string
-          package_id?: string | null
-          schedule_name?: string
-          schedule_type?: string | null
-          discount_type?: string | null
-          discount_value?: number | null
-          override_price_usd_cents?: number | null
-          override_price_idr?: number | null
-          starts_at?: string
-          ends_at?: string
-          priority?: number | null
-          badge_text?: string | null
-          badge_color?: string | null
-          is_active?: boolean | null
-          created_by?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+          id?: string;
+          package_id?: string | null;
+          schedule_name?: string;
+          schedule_type?: string | null;
+          discount_type?: string | null;
+          discount_value?: number | null;
+          override_price_usd_cents?: number | null;
+          override_price_idr?: number | null;
+          starts_at?: string;
+          ends_at?: string;
+          priority?: number | null;
+          badge_text?: string | null;
+          badge_color?: string | null;
+          is_active?: boolean | null;
+          created_by?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       orders: {
         Row: {
-          code_discount_cents: number | null
-          completed_at: string | null
-          created_at: string | null
-          currency_code: string | null
-          customer_email: string
-          customer_name: string | null
-          discount_code_id: string | null
-          discount_code_used: string | null
-          esim_status: string | null
-          id: string
-          metadata: Json | null
-          order_number: string
-          order_type: string | null
-          paddle_checkout_url: string | null
-          paddle_customer_id: string | null
-          paddle_transaction_id: string | null
-          paid_at: string | null
-          payment_status: string | null
-          points_applied: boolean | null
-          points_earned: number | null
-          product_discount_cents: number | null
-          status: string | null
-          subtotal_cents: number
-          total_cents: number
-          total_discount_cents: number | null
-          updated_at: string | null
-          user_id: string | null
-        }
+          code_discount_cents: number | null;
+          completed_at: string | null;
+          created_at: string | null;
+          currency_code: string | null;
+          customer_email: string;
+          customer_name: string | null;
+          discount_code_id: string | null;
+          discount_code_used: string | null;
+          esim_status: string | null;
+          id: string;
+          metadata: Json | null;
+          order_number: string;
+          order_type: string | null;
+          paddle_checkout_url: string | null;
+          paddle_customer_id: string | null;
+          paddle_transaction_id: string | null;
+          paid_at: string | null;
+          payment_status: string | null;
+          points_applied: boolean | null;
+          points_earned: number | null;
+          product_discount_cents: number | null;
+          status: string | null;
+          subtotal_cents: number;
+          total_cents: number;
+          total_discount_cents: number | null;
+          updated_at: string | null;
+          user_id: string | null;
+        };
         Insert: {
-          code_discount_cents?: number | null
-          completed_at?: string | null
-          created_at?: string | null
-          currency_code?: string | null
-          customer_email: string
-          customer_name?: string | null
-          discount_code_id?: string | null
-          discount_code_used?: string | null
-          esim_status?: string | null
-          id?: string
-          metadata?: Json | null
-          order_number: string
-          order_type?: string | null
-          paddle_checkout_url?: string | null
-          paddle_customer_id?: string | null
-          paddle_transaction_id?: string | null
-          paid_at?: string | null
-          payment_status?: string | null
-          points_applied?: boolean | null
-          points_earned?: number | null
-          product_discount_cents?: number | null
-          status?: string | null
-          subtotal_cents: number
-          total_cents: number
-          total_discount_cents?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
+          code_discount_cents?: number | null;
+          completed_at?: string | null;
+          created_at?: string | null;
+          currency_code?: string | null;
+          customer_email: string;
+          customer_name?: string | null;
+          discount_code_id?: string | null;
+          discount_code_used?: string | null;
+          esim_status?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          order_number: string;
+          order_type?: string | null;
+          paddle_checkout_url?: string | null;
+          paddle_customer_id?: string | null;
+          paddle_transaction_id?: string | null;
+          paid_at?: string | null;
+          payment_status?: string | null;
+          points_applied?: boolean | null;
+          points_earned?: number | null;
+          product_discount_cents?: number | null;
+          status?: string | null;
+          subtotal_cents: number;
+          total_cents: number;
+          total_discount_cents?: number | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
         Update: {
-          code_discount_cents?: number | null
-          completed_at?: string | null
-          created_at?: string | null
-          currency_code?: string | null
-          customer_email?: string
-          customer_name?: string | null
-          discount_code_id?: string | null
-          discount_code_used?: string | null
-          esim_status?: string | null
-          id?: string
-          metadata?: Json | null
-          order_number?: string
-          order_type?: string | null
-          paddle_checkout_url?: string | null
-          paddle_customer_id?: string | null
-          paddle_transaction_id?: string | null
-          paid_at?: string | null
-          payment_status?: string | null
-          points_applied?: boolean | null
-          points_earned?: number | null
-          product_discount_cents?: number | null
-          status?: string | null
-          subtotal_cents?: number
-          total_cents?: number
-          total_discount_cents?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+          code_discount_cents?: number | null;
+          completed_at?: string | null;
+          created_at?: string | null;
+          currency_code?: string | null;
+          customer_email?: string;
+          customer_name?: string | null;
+          discount_code_id?: string | null;
+          discount_code_used?: string | null;
+          esim_status?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          order_number?: string;
+          order_type?: string | null;
+          paddle_checkout_url?: string | null;
+          paddle_customer_id?: string | null;
+          paddle_transaction_id?: string | null;
+          paid_at?: string | null;
+          payment_status?: string | null;
+          points_applied?: boolean | null;
+          points_earned?: number | null;
+          product_discount_cents?: number | null;
+          status?: string | null;
+          subtotal_cents?: number;
+          total_cents?: number;
+          total_discount_cents?: number | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       user_profiles: {
         Row: {
-          avatar_url: string | null
-          created_at: string | null
-          email_notifications: boolean | null
-          first_order_at: string | null
-          full_name: string | null
-          id: string
-          last_order_at: string | null
-          phone: string | null
-          points_balance: number | null
-          preferred_currency: string | null
-          total_orders: number | null
-          total_points_earned: number | null
-          total_points_spent: number | null
-          total_spent_cents: number | null
-          updated_at: string | null
-        }
+          avatar_url: string | null;
+          created_at: string | null;
+          email_notifications: boolean | null;
+          first_order_at: string | null;
+          full_name: string | null;
+          id: string;
+          last_order_at: string | null;
+          phone: string | null;
+          points_balance: number | null;
+          preferred_currency: string | null;
+          total_orders: number | null;
+          total_points_earned: number | null;
+          total_points_spent: number | null;
+          total_spent_cents: number | null;
+          updated_at: string | null;
+        };
         Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email_notifications?: boolean | null
-          first_order_at?: string | null
-          full_name?: string | null
-          id: string
-          last_order_at?: string | null
-          phone?: string | null
-          points_balance?: number | null
-          preferred_currency?: string | null
-          total_orders?: number | null
-          total_points_earned?: number | null
-          total_points_spent?: number | null
-          total_spent_cents?: number | null
-          updated_at?: string | null
-        }
+          avatar_url?: string | null;
+          created_at?: string | null;
+          email_notifications?: boolean | null;
+          first_order_at?: string | null;
+          full_name?: string | null;
+          id: string;
+          last_order_at?: string | null;
+          phone?: string | null;
+          points_balance?: number | null;
+          preferred_currency?: string | null;
+          total_orders?: number | null;
+          total_points_earned?: number | null;
+          total_points_spent?: number | null;
+          total_spent_cents?: number | null;
+          updated_at?: string | null;
+        };
         Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email_notifications?: boolean | null
-          first_order_at?: string | null
-          full_name?: string | null
-          id?: string
-          last_order_at?: string | null
-          phone?: string | null
-          points_balance?: number | null
-          preferred_currency?: string | null
-          total_orders?: number | null
-          total_points_earned?: number | null
-          total_points_spent?: number | null
-          total_spent_cents?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-    }
+          avatar_url?: string | null;
+          created_at?: string | null;
+          email_notifications?: boolean | null;
+          first_order_at?: string | null;
+          full_name?: string | null;
+          id?: string;
+          last_order_at?: string | null;
+          phone?: string | null;
+          points_balance?: number | null;
+          preferred_currency?: string | null;
+          total_orders?: number | null;
+          total_points_earned?: number | null;
+          total_points_spent?: number | null;
+          total_spent_cents?: number | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
 // Helper types
 export type Tables<T extends keyof Database["public"]["Tables"]> =
-  Database["public"]["Tables"][T]["Row"]
+  Database["public"]["Tables"][T]["Row"];
 export type InsertTables<T extends keyof Database["public"]["Tables"]> =
-  Database["public"]["Tables"][T]["Insert"]
+  Database["public"]["Tables"][T]["Insert"];
 export type UpdateTables<T extends keyof Database["public"]["Tables"]> =
-  Database["public"]["Tables"][T]["Update"]
+  Database["public"]["Tables"][T]["Update"];
 
 // Specific types
-export type EsimPackage = Tables<"esim_packages">
-export type Order = Tables<"orders">
-export type OrderInsert = InsertTables<"orders">
-export type OrderItem = Tables<"order_items">
-export type OrderItemInsert = InsertTables<"order_items">
-export type EsimProfile = Tables<"esim_profiles">
-export type UserProfile = Tables<"user_profiles">
-export type DiscountCode = Tables<"discount_codes">
+export type EsimPackage = Tables<"esim_packages">;
+export type Order = Tables<"orders">;
+export type OrderInsert = InsertTables<"orders">;
+export type OrderItem = Tables<"order_items">;
+export type OrderItemInsert = InsertTables<"order_items">;
+export type EsimProfile = Tables<"esim_profiles">;
+export type UserProfile = Tables<"user_profiles">;
+export type DiscountCode = Tables<"discount_codes">;

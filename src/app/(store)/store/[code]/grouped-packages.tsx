@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import type { EsimPackage } from "@/types/database";
 import {
   calculateEffectivePrice,
   formatPriceWithDiscount,
+  centsToUsd,
   type PriceSchedule,
 } from "@/lib/price-utils";
 import { toast } from "sonner";
@@ -63,6 +65,7 @@ export function GroupedPackages({
 }: GroupedPackagesProps) {
   const currency = useCurrencyStore((state) => state.currency);
   const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
 
   const durations = useMemo(() => getUniqueDurations(packages), [packages]);
   const [selectedDuration, setSelectedDuration] = useState<number | "all">(
@@ -123,12 +126,14 @@ export function GroupedPackages({
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
-  const handleCheckout = () => {
-    handleAddToCart();
-    // Navigate to checkout would go here
+  const handleCheckoutOnly = () => {
+    if (!selectedPackage) return;
+    // Navigate to checkout with only the selected package (without adding to cart)
+    const itemIds = Array(quantity).fill(selectedPackage.id).join(",");
+    router.push(`/checkout?items=${itemIds}`);
   };
 
-  // Calculate total price for floating bar
+  // Calculate total price for floating bar (in display format: dollars for USD, rupiah for IDR)
   const totalPrice = useMemo(() => {
     if (!selectedPackage) return 0;
     const effectivePrice = packagePrices.get(selectedPackage.id);
@@ -136,7 +141,7 @@ export function GroupedPackages({
 
     const pricePerUnit =
       currency === "USD"
-        ? effectivePrice.finalUsdCents / 100
+        ? centsToUsd(effectivePrice.finalUsdCents)
         : effectivePrice.finalIdr;
 
     return pricePerUnit * quantity;
@@ -239,7 +244,7 @@ export function GroupedPackages({
           onIncrement={incrementQuantity}
           onDecrement={decrementQuantity}
           onAddToCart={handleAddToCart}
-          onCheckout={handleCheckout}
+          onCheckoutOnly={handleCheckoutOnly}
         />
       )}
     </div>
