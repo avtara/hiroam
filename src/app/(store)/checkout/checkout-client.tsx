@@ -20,6 +20,7 @@ import type { PaymentMethod } from "@/components/checkout/PaymentMethodSelector"
 import { X402PaymentModal } from "@/components/checkout/X402PaymentModal";
 import { BuyerInformationCard } from "@/components/checkout/buyer-information-card";
 import { OrderSummaryCard } from "@/components/checkout/order-summary-card";
+import { AnonymousCheckoutModal } from "@/components/checkout/anonymous-checkout-modal";
 import { useDirectCheckout } from "@/hooks/use-direct-checkout";
 import { useCheckoutHandlers } from "@/hooks/use-checkout-handlers";
 
@@ -55,6 +56,9 @@ export default function CheckoutClient({
   const [mounted, setMounted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("paddle");
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [showAnonymousModal, setShowAnonymousModal] = useState(false);
+  const [pendingFormData, setPendingFormData] =
+    useState<CheckoutFormData | null>(null);
 
   // Update URL when anonymous mode changes
   useEffect(() => {
@@ -231,7 +235,14 @@ export default function CheckoutClient({
           <div className="lg:col-span-3 space-y-3">
             <form
               id="checkout-form"
-              onSubmit={handleSubmit((data) => onSubmit(data, paymentMethod))}
+              onSubmit={handleSubmit((data) => {
+                if (isAnonymous) {
+                  setPendingFormData(data);
+                  setShowAnonymousModal(true);
+                } else {
+                  onSubmit(data, paymentMethod);
+                }
+              })}
             >
               <BuyerInformationCard
                 register={register}
@@ -279,6 +290,19 @@ export default function CheckoutClient({
         paymentRequirements={paymentRequirements}
         onSuccess={handleX402Success}
         onError={(error) => toast.error(error)}
+      />
+
+      {/* Anonymous Checkout Modal */}
+      <AnonymousCheckoutModal
+        open={showAnonymousModal}
+        onOpenChange={setShowAnonymousModal}
+        orderId={serverGeneratedOrderId}
+        onContinue={() => {
+          setShowAnonymousModal(false);
+          if (pendingFormData) {
+            onSubmit(pendingFormData, paymentMethod);
+          }
+        }}
       />
     </div>
   );
