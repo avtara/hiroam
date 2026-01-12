@@ -6,22 +6,12 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/providers/auth-provider";
 import { toast } from "sonner";
-import { Header } from "@/components/layout/header";
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -33,9 +23,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const { signIn, signInWithGoogle } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
 
   const {
     register,
@@ -51,7 +41,7 @@ export default function LoginPage() {
       const { error } = await signIn(data.email, data.password);
       if (error) {
         toast.error(
-          error.message || "Gagal masuk. Periksa email dan password Anda."
+          error.message || "Gagal masuk. Periksa email dan password Anda.",
         );
         return;
       }
@@ -79,26 +69,56 @@ export default function LoginPage() {
     }
   };
 
+  const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    try {
+      // Apple Sign In not yet implemented
+      toast.error("Apple Sign In coming soon");
+    } catch {
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setIsAppleLoading(false);
+    }
+  };
+
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-bold">Masuk</CardTitle>
-        <CardDescription>
-          Masuk ke akun HIROAM Anda untuk melanjutkan
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Google Sign In */}
+    <div className="w-full max-w-md">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-medium">
+          <span className="text-teal-500">Welcome</span> back
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Login to your HiRoaming account
+        </p>
+      </div>
+
+      {/* Social Login Buttons */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <Button
           variant="outline"
-          className="w-full"
+          className="h-12 bg-white border-gray-200 rounded-xl hover:bg-gray-50"
+          onClick={handleAppleSignIn}
+          disabled={isAppleLoading}
+        >
+          {isAppleLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z" />
+            </svg>
+          )}
+        </Button>
+        <Button
+          variant="outline"
+          className="h-12 bg-white border-gray-200 rounded-xl hover:bg-gray-50"
           onClick={handleGoogleSignIn}
           disabled={isGoogleLoading}
         >
           {isGoogleLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -117,89 +137,87 @@ export default function LoginPage() {
               />
             </svg>
           )}
-          Lanjutkan dengan Google
         </Button>
+      </div>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Atau dengan email
-            </span>
-          </div>
+      {/* Divider */}
+      <div className="relative mb-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-4 text-muted-foreground">
+            OR CONTINUE WITH EMAIL
+          </span>
+        </div>
+      </div>
+
+      {/* Email/Password Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-normal">
+            Email
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
+            className="h-12 bg-white border-gray-200 rounded-xl"
+            {...register("email")}
+            disabled={isLoading}
+          />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
         </div>
 
-        {/* Email/Password Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="nama@email.com"
-              {...register("email")}
-              disabled={isLoading}
-            />
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-sm font-normal">
+              Password
+            </Label>
+            <Link
+              href="/forgot-password"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Forgot password?
+            </Link>
           </div>
+          <Input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            className="h-12 bg-white border-gray-200 rounded-xl"
+            {...register("password")}
+            disabled={isLoading}
+          />
+          {errors.password && (
+            <p className="text-sm text-destructive">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Lupa password?
-              </Link>
-            </div>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                {...register("password")}
-                disabled={isLoading}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                )}
-              </Button>
-            </div>
-            {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+        <Button
+          type="submit"
+          className="w-full h-12 text-base font-medium"
+          disabled={isLoading}
+        >
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Login
+        </Button>
+      </form>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Masuk
-          </Button>
-        </form>
-      </CardContent>
-      <CardFooter className="flex flex-col space-y-2">
-        <p className="text-center text-sm text-muted-foreground">
-          Belum punya akun?{" "}
-          <Link href="/register" className="text-primary hover:underline">
-            Daftar sekarang
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+      {/* Sign Up Link */}
+      <p className="text-center text-sm text-muted-foreground mt-8">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/register"
+          className="text-foreground underline hover:text-teal-500"
+        >
+          Sign up
+        </Link>
+      </p>
+    </div>
   );
 }
