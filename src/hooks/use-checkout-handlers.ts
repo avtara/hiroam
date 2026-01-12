@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { useCartStore } from "@/stores/cart-store";
+import { CartItem, useCartStore } from "@/stores/cart-store";
 import { useAuth } from "@/providers/auth-provider";
 import type {
   PaymentRequirements,
@@ -17,7 +17,7 @@ interface CheckoutFormData {
 }
 
 export function useCheckoutHandlers(
-  items: any[],
+  items: CartItem[],
   promoCode: string | null,
   isDirectCheckout: boolean,
   isAnonymous: boolean = false,
@@ -38,7 +38,8 @@ export function useCheckoutHandlers(
     setIsLoading(true);
     console.log("[Checkout] Starting x402 checkout process...");
 
-    const freshItems = useCartStore.getState().items;
+    // Use passed items for direct checkout, otherwise get fresh from store
+    const freshItems = items.length > 0 ? items : useCartStore.getState().items;
 
     try {
       const cartItems = freshItems.map((item) => ({
@@ -124,7 +125,8 @@ export function useCheckoutHandlers(
     setIsLoading(true);
     console.log("[Checkout] Starting checkout process...");
 
-    const freshItems = useCartStore.getState().items;
+    // Use passed items for direct checkout, otherwise get fresh from store
+    const freshItems = items.length > 0 ? items : useCartStore.getState().items;
 
     console.log(
       "[Checkout] Items from store at submit time:",
@@ -205,10 +207,6 @@ export function useCheckoutHandlers(
 
       const result = await response.json();
       console.log("[Checkout] Edge function response:", result);
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to create checkout");
-      }
 
       if (!isDirectCheckout) {
         clearCart();

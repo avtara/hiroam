@@ -236,6 +236,22 @@ export default function CheckoutClient({
             <form
               id="checkout-form"
               onSubmit={handleSubmit((data) => {
+                // Validate name and email for non-anonymous checkout
+                if (!isAnonymous) {
+                  if (!data.email || !data.email.trim()) {
+                    toast.error("Email is required");
+                    return;
+                  }
+                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+                    toast.error("Please enter a valid email address");
+                    return;
+                  }
+                  if (!data.fullName || data.fullName.trim().length < 2) {
+                    toast.error("Full name is required (minimum 2 characters)");
+                    return;
+                  }
+                }
+
                 if (isAnonymous) {
                   setPendingFormData(data);
                   setShowAnonymousModal(true);
